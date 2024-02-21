@@ -1,0 +1,185 @@
+name: openssh node execution services
+rundeckPluginVersion: 2.0
+author: "@author@"
+date: "@date@"
+version: "@version@"
+url: "@url@"
+description: "OpenSSH SFTP Node Executor"
+rundeckCompatibilityVersion: "3.2.x"
+targetHostCompatibility: "all"
+license: "Apache 2.0"
+tags:
+    - script
+    - NodeExecutor
+    - FileCopier
+providers:
+    - name: ssh-sftp-exec
+      service: NodeExecutor
+      title: 'openssh-sftp / executor'
+      description: Executes a openssh SFTPcommand on the node. Password Authentication needs sshpass installed on the rundeck server
+      plugin-type: script
+      script-interpreter: /bin/bash
+      script-file: ssh-sftp-exec.sh
+      script-args: ${node.username} ${node.hostname} ${exec.command}
+      config:
+        - name: dry_run
+          title: 'Dry run?'
+          type: Boolean
+          required: false
+          description: 'Just echo what would be done'
+        - type: Select
+          name: authentication
+          title: Authentication
+          description: Authentication SSH Type (password or privatekey). A node attribute named ssh-authentication will override this value.
+          default: password
+          values:
+          - password
+          - privatekey
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-authentication"
+        - name: ssh_key_storage_path
+          title: SSH key Storage Path
+          type: String
+          required: false
+          description: "Optional storage path for ssh-key saved on the key storage. Can contain property references to node attributes. A node attribute named ssh-key-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-key-storage-path"
+            storage-file-meta-filter: "Rundeck-key-type=private"
+        - name: ssh_key_passphrase_storage_path
+          title: SSH key Passphrase Storage Path
+          type: String
+          required: false
+          description: "Optional storage path for ssh-key Passphrase. Can contain property references to node attributes. A node attribute named ssh-key-passphrase-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-key-passphrase-storage-path"
+            storage-file-meta-filter: "Rundeck-data-type=password"
+        - name: ssh_password_storage_path
+          title: SSH Password Storage Path
+          type: String
+          required: false
+          description: "Optional storage password path. Can contain property references to node attributes. A node attribute named ssh-password-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-password-storage-path"
+            storage-file-meta-filter: "Rundeck-data-type=password"
+        - name: ssh_options
+          title: SSH Custom Options
+          type: String
+          required: false
+          description: "Add custom settings to SSH connection. Eg: -o ConnectTimeout=10. A node attribute named ssh-options will override this value."
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-options"
+        - name: ssh_password_option
+          title: SSH Password with a Job Option
+          type: String
+          required: false
+          description: "Get the password form a job option (eg: `option.password`). The Job must define a Secure Remote Authentication Option to prompt the user for the password before execution. A node attribute named ssh-password-option will override this value"
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-password-option"
+        - name: ssh_key_passphrase_option
+          title: SSH Passphrase with a Job Option
+          type: String
+          required: false
+          description: "Get the passphrase form a job option (eg: `option.passphrase`). The Job must define a Secure Remote Authentication Option to prompt the user for the passphrase before execution. A node attribute named ssh-key-passphrase-option will override this value"
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-key-passphrase-option"
+    - name: ssh-sftp-copier
+      service: FileCopier
+      title: 'openssh-sftp / file-copier'
+      description: Copies file to the node via SFTP.  Password Authentication needs sshpass installed on the rundeck server
+      plugin-type: script
+      script-interpreter: /bin/bash
+      script-file: ssh-sftp-copy.sh
+      script-args: ${node.username} ${node.hostname}
+      config:
+        - name: dry_run
+          title: 'Dry run?'
+          type: Boolean
+          required: false
+          description: 'Just echo what would be done'
+        - type: Select
+          name: authentication
+          title: Authentication
+          description: Authentication SSH Type (password or privatekey). A node attribute named ssh-authentication will override this value.
+          default: password
+          values:
+          - password
+          - privatekey
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-authentication"
+        - name: ssh_key_storage_path
+          title: SSH key Storage Path
+          type: String
+          required: false
+          description: "Optional storage path for ssh-key file. Can contain property references to node attributes. A node attribute named ssh-key-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-key-storage-path"
+            storage-file-meta-filter: "Rundeck-key-type=private"
+        - name: ssh_key_passphrase_storage_path
+          title: SSH key Passphrase Storage Path
+          type: String
+          required: false
+          description: "Optional storage path for ssh-key Passphrase. Can contain property references to node attributes. A node attribute named ssh-key-passphrase-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-key-passphrase-storage-path"
+            storage-file-meta-filter: "Rundeck-data-type=password"
+        - name: ssh_password_storage_path
+          title: SSH Password Storage Path
+          type: String
+          required: false
+          description: "Optional storage password path. Can contain property references to node attributes. A node attribute named ssh-password-storage-path will override this value."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "ssh-password-storage-path"
+            storage-file-meta-filter: "Rundeck-data-type=password"
+        - name: ssh_options
+          title: SSH Custom Options
+          type: String
+          required: false
+          description: "Add custom settings to SSH connection. Eg: -o ConnectTimeout=10. A node attribute named ssh-options will override this value."
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-options"
+        - name: ssh_password_option
+          title: SSH Password with a Job Option
+          type: String
+          required: false
+          description: "Get the password form a job option (eg: `option.password`). The Job must define a Secure Remote Authentication Option to prompt the user for the password before execution. A node attribute named ssh-password-option will override this value"
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-password-option"
+        - name: ssh_key_passphrase_option
+          title: SSH Passphrase with a Job Option
+          type: String
+          required: false
+          description: "Get the passphrase form a job option (eg: `option.passphrase`). The Job must define a Secure Remote Authentication Option to prompt the user for the passphrase before execution. A node attribute named ssh-key-passphrase-option will override this value"
+          scope: Instance
+          renderingOptions:
+             instance-scope-node-attribute: "ssh-key-passphrase-option"
